@@ -1,3 +1,9 @@
+#![warn(clippy::pedantic, clippy::nursery)]
+#![allow(
+    clippy::module_name_repetitions,
+    clippy::wildcard_imports,
+    clippy::doc_markdown
+)]
 //! A high level async library that allows you to use the 2captcha API
 //! to solve various types of captcha puzzles
 //!

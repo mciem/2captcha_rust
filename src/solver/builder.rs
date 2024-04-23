@@ -11,6 +11,7 @@ pub struct SolverBuilder<T> {
 }
 
 impl SolverBuilder<NoApiKeyProvided> {
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             api_key: NoApiKeyProvided,
@@ -27,6 +28,7 @@ impl Default for SolverBuilder<NoApiKeyProvided> {
 }
 
 impl SolverBuilder<ApiKey> {
+    #[must_use]
     pub fn build(self) -> CaptchaSolver {
         CaptchaSolver {
             api_key: self.api_key.0,
@@ -37,6 +39,7 @@ impl SolverBuilder<ApiKey> {
 }
 
 impl<T> SolverBuilder<T> {
+    #[must_use]
     pub fn api_key(self, api_key: impl Into<Box<str>>) -> SolverBuilder<ApiKey> {
         SolverBuilder {
             api_key: ApiKey(api_key.into()),
@@ -45,11 +48,13 @@ impl<T> SolverBuilder<T> {
         }
     }
 
-    pub fn language_pool(mut self, language_pool: LanguagePool) -> Self {
+    #[must_use]
+    pub const fn language_pool(mut self, language_pool: LanguagePool) -> Self {
         self.language_pool = language_pool;
         self
     }
 
+    #[must_use]
     pub fn callback_url(mut self, callback_url: Option<Url>) -> Self {
         self.callback_url = callback_url;
         self

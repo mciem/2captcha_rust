@@ -6,7 +6,7 @@ use crate::solution::CaptchaSolution;
 
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct GetTaskResultRequest<'a> {
+pub struct GetTaskResultRequest<'a> {
     pub client_key: &'a str,
     pub task_id: u64,
 }
@@ -19,7 +19,7 @@ pub(crate) struct GetTaskResultRequest<'a> {
 
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct GetTaskResultError<'a> {
+pub struct GetTaskResultError<'a> {
     pub error_code: Cow<'a, str>,
 }
 
@@ -27,7 +27,7 @@ pub(crate) struct GetTaskResultError<'a> {
 
 #[derive(serde::Deserialize, Debug)]
 #[serde(tag = "status", rename_all = "lowercase")]
-pub(crate) enum GetTaskResultResponse<'a, T> {
+pub enum GetTaskResultResponse<'a, T> {
     #[serde(rename_all = "camelCase")]
     Ready(CaptchaSolution<'a, T>),
     Processing,

@@ -34,7 +34,7 @@ use crate::{captcha_types::empty_data::Empty, CaptchaTask};
 #[serde(rename_all = "camelCase")]
 pub struct ArkoseLabsCaptcha<'a, T = Empty>
 where
-    T: serde::Serialize,
+    T: serde::Serialize + Send + Sync,
 {
     #[serde(skip)]
     #[task(default = Default::default)]

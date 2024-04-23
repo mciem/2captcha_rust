@@ -4,9 +4,9 @@ use crate::{solver::language_pool::LanguagePool, CaptchaTask};
 
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct CreateTaskRequest<'a, T>
+pub struct CreateTaskRequest<'a, T>
 where
-    T: CaptchaTask,
+    T: CaptchaTask + Send,
 {
     pub client_key: &'a str,
     pub task: &'a T,
@@ -19,7 +19,7 @@ where
 
 #[derive(serde::Deserialize)]
 #[serde(untagged)]
-pub(crate) enum CreateTaskResponse {
+pub enum CreateTaskResponse {
     #[serde(rename_all = "camelCase")]
     TaskCreated { task_id: u64 },
 

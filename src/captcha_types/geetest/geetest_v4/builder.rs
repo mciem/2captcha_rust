@@ -5,7 +5,7 @@ use crate::{prelude::*, proxy::Proxy};
 
 pub struct GeeTestV4Builder<'a, T, U, V, W, X>
 where
-    X: serde::Serialize,
+    X: serde::Serialize + Send + Sync,
 {
     website_url: T,
     gt: U,
@@ -17,19 +17,19 @@ where
     proxy: Option<Proxy<'a>>,
 }
 
-impl<'a, T>
+impl<'a, X>
     GeeTestV4Builder<
         'a,
         UrlProvided<'a>,
         GtProvided<'a>,
         ChallengeProvided<'a>,
         CaptchaIdProvided<'a>,
-        T,
+        X,
     >
 where
-    T: serde::Serialize,
+    X: serde::Serialize + Send + Sync,
 {
-    pub fn build(self) -> Result<GeeTestV4<'a, T>> {
+    pub fn build(self) -> Result<GeeTestV4<'a, X>> {
         Ok(GeeTestV4 {
             task_type: self.proxy.into(),
             website_url: url::Url::parse(self.website_url.0)?,
@@ -46,9 +46,9 @@ where
     }
 }
 
-impl<'a, T> GeeTestV4Builder<'a, UrlMissing, GtMissing, ChallengeMissing, CaptchaIdMissing, T>
+impl<'a, X> GeeTestV4Builder<'a, UrlMissing, GtMissing, ChallengeMissing, CaptchaIdMissing, X>
 where
-    T: serde::Serialize,
+    X: serde::Serialize + Send + Sync,
 {
     pub const fn new() -> Self {
         Self {
@@ -64,10 +64,10 @@ where
     }
 }
 
-impl<'a, T> Default
-    for GeeTestV4Builder<'a, UrlMissing, GtMissing, ChallengeMissing, CaptchaIdMissing, T>
+impl<'a, X> Default
+    for GeeTestV4Builder<'a, UrlMissing, GtMissing, ChallengeMissing, CaptchaIdMissing, X>
 where
-    T: serde::Serialize,
+    X: serde::Serialize + Send + Sync,
 {
     fn default() -> Self {
         Self::new()
@@ -76,7 +76,7 @@ where
 
 impl<'a, T, U, V, W, X> GeeTestV4Builder<'a, T, U, V, W, X>
 where
-    X: serde::Serialize,
+    X: serde::Serialize + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

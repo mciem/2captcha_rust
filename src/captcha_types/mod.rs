@@ -27,12 +27,13 @@ use std::fmt::Debug;
 
 pub(crate) use captcha_oxide_derive::CaptchaTask;
 
-pub trait CaptchaTask: serde::Serialize {
+pub trait CaptchaTask: serde::Serialize + Send + Sync {
     type Solution: for<'de> serde::Deserialize<'de> + Debug;
     type Builder: Default;
 
     /// Allows for building the request data for the 2captcha API
     /// while checking at compile time if all required fields were provided
+    #[must_use]
     fn builder() -> Self::Builder {
         Self::Builder::default()
     }

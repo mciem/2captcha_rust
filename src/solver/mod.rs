@@ -44,6 +44,7 @@ impl CaptchaSolver {
 
     /// Returns an instance of the [`SolverBuilder`], which ensures a [`CaptchaSolver`]
     /// is built with an API key and provides methods to change its settings
+    #[must_use]
     pub const fn builder() -> SolverBuilder<NoApiKeyProvided> {
         SolverBuilder::<NoApiKeyProvided>::new()
     }
@@ -61,6 +62,7 @@ impl CaptchaSolver {
     pub async fn solve<'a, T>(&self, task: T) -> Result<Option<CaptchaSolution<'a, T::Solution>>>
     where
         T: CaptchaTask,
+        T::Solution: Send,
     {
         let create_task = CreateTaskRequest {
             client_key: &self.api_key,
@@ -121,11 +123,17 @@ impl CaptchaSolver {
     }
 
     /// Allows you to report to 2captcha on wether or not the solution was valid
+    ///
+    /// # Errors
+    /// This function can only error if the request is not sent successfully
     pub async fn report<'a, T>(
         &self,
         solution: CaptchaSolution<'a, T>,
         status: SolutionStatus,
-    ) -> Result<()> {
+    ) -> Result<()>
+    where
+        T: Send,
+    {
         let json = GetTaskResultRequest {
             client_key: &self.api_key,
             task_id: solution.task_id,
@@ -141,6 +149,10 @@ impl CaptchaSolver {
     }
 
     /// Returns your account balance
+    ///
+    /// # Errors
+    /// This function can error if the request is not sent successfully or if
+    /// the response cannot be parsed
     pub async fn get_balance(&self) -> Result<f32> {
         let request = GetBalanceRequest {
             client_key: self.api_key.as_ref(),
@@ -166,10 +178,11 @@ pub enum SolutionStatus {
 }
 
 impl SolutionStatus {
+    #[must_use]
     pub const fn report_endpoint(&self) -> &str {
         match self {
-            SolutionStatus::Good => "/reportCorrect",
-            SolutionStatus::Bad => "/reportIncorrect",
+            Self::Good => "/reportCorrect",
+            Self::Bad => "/reportIncorrect",
         }
     }
 }

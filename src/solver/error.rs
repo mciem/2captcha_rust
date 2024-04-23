@@ -67,28 +67,28 @@ pub enum SolveError {
 impl From<&str> for SolveError {
     fn from(value: &str) -> Self {
         match value {
-            "ERROR_KEY_DOES_NOT_EXIST" => SolveError::InvalidApiKey,
-            "ERROR_NO_SLOT_AVAILABLE" => SolveError::NoSlotAvailable,
-            "ERROR_ZERO_CAPTCHA_FILESIZE" => SolveError::ImageTooSmall,
-            "ERROR_TOO_BIG_CAPTCHA_FILESIZE" => SolveError::ImageTooBig,
-            "ERROR_ZERO_BALANCE" => SolveError::ZeroBalance,
-            "ERROR_IP_NOT_ALLOWED" => SolveError::IpNotAllowed,
-            "ERROR_CAPTCHA_UNSOLVABLE" => SolveError::UnsolvableCaptcha,
-            "ERROR_BAD_DUPLICATES" => SolveError::BadDuplicates,
-            "ERROR_NO_SUCH_METHOD" => SolveError::NoSuchMethod,
-            "ERROR_IMAGE_TYPE_NOT_SUPPORTED" => SolveError::UnsupportedImageType,
-            "ERROR_NO_SUCH_CAPCHA_ID" => SolveError::CaptchaIdNotFound,
-            "ERROR_IP_BLOCKED" => SolveError::IpBlocked,
-            "ERROR_TASK_ABSENT" => SolveError::TaskNotProvided,
-            "ERROR_TASK_NOT_SUPPORTED" => SolveError::TaskNotSupported,
-            "ERROR_RECAPTCHA_INVALID_SITEKEY" => SolveError::InvalidSiteKey,
-            "ERROR_ACCOUNT_SUSPENDED" => SolveError::AccountSuspended,
-            "ERROR_BAD_PROXY" => SolveError::BadProxy,
+            "ERROR_KEY_DOES_NOT_EXIST" => Self::InvalidApiKey,
+            "ERROR_NO_SLOT_AVAILABLE" => Self::NoSlotAvailable,
+            "ERROR_ZERO_CAPTCHA_FILESIZE" => Self::ImageTooSmall,
+            "ERROR_TOO_BIG_CAPTCHA_FILESIZE" => Self::ImageTooBig,
+            "ERROR_ZERO_BALANCE" => Self::ZeroBalance,
+            "ERROR_IP_NOT_ALLOWED" => Self::IpNotAllowed,
+            "ERROR_CAPTCHA_UNSOLVABLE" => Self::UnsolvableCaptcha,
+            "ERROR_BAD_DUPLICATES" => Self::BadDuplicates,
+            "ERROR_NO_SUCH_METHOD" => Self::NoSuchMethod,
+            "ERROR_IMAGE_TYPE_NOT_SUPPORTED" => Self::UnsupportedImageType,
+            "ERROR_NO_SUCH_CAPCHA_ID" => Self::CaptchaIdNotFound,
+            "ERROR_IP_BLOCKED" => Self::IpBlocked,
+            "ERROR_TASK_ABSENT" => Self::TaskNotProvided,
+            "ERROR_TASK_NOT_SUPPORTED" => Self::TaskNotSupported,
+            "ERROR_RECAPTCHA_INVALID_SITEKEY" => Self::InvalidSiteKey,
+            "ERROR_ACCOUNT_SUSPENDED" => Self::AccountSuspended,
+            "ERROR_BAD_PROXY" => Self::BadProxy,
             "ERROR_PROXY_CONNECTION_FAILED" | "ERR_PROXY_CONNECTION_FAILED" => {
-                SolveError::ProxyConnectionFailed
+                Self::ProxyConnectionFailed
             }
-            "ERROR_BAD_PARAMETERS" => SolveError::BadParameters,
-            "ERROR_BAD_IMGINSTRUCTIONS" => SolveError::BadImageInstructions,
+            "ERROR_BAD_PARAMETERS" => Self::BadParameters,
+            "ERROR_BAD_IMGINSTRUCTIONS" => Self::BadImageInstructions,
             x => unreachable!("Unreachable 2captcha error: {}", x),
         }
     }

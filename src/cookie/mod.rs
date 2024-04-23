@@ -8,6 +8,7 @@ impl<'a> Cookie<'a> {
         Self(name.into(), value.into())
     }
 
+    #[must_use]
     pub fn stringify(&self) -> Cow<'a, str> {
         Cow::Owned(format!("{}={}", self.0, self.1))
     }

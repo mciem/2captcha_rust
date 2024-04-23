@@ -30,7 +30,7 @@ use crate::{captcha_types::empty_data::Empty, CaptchaTask};
 #[serde(rename_all = "camelCase")]
 pub struct HCaptcha<'a, T = Empty>
 where
-    T: serde::Serialize,
+    T: serde::Serialize + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

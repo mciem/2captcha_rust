@@ -40,7 +40,7 @@ use super::{builder::GeeTestV4Builder, solution::GeeTestV4Solution};
 #[serde(rename_all = "camelCase")]
 pub struct GeeTestV4<'a, T = Empty>
 where
-    T: serde::Serialize,
+    T: serde::Serialize + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -83,7 +83,7 @@ pub struct InitParameters<'a, T> {
 
 impl<'a, T> CaptchaTask for GeeTestV4<'a, T>
 where
-    T: serde::Serialize,
+    T: serde::Serialize + Send + Sync,
 {
     type Solution = GeeTestV4Solution<'a>;
     type Builder =
