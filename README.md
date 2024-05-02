@@ -34,4 +34,18 @@ async fn example() -> captcha_oxide::Result<()> {
 }
 ```
 
+## Should I migrate from v5.2.0?
+Unless you need `TencentCaptcha` or `AtbCaptcha`, there is no
+need to migrate if you have an existing project using version
+`5.2.0`.
+
+Version `6.0.0` is a restructure of the API and the macros
+aimed at making them more convinient to maintain, especially
+as the previous macro system was cumbersome and had very poor
+syntax. If you are creating a new project, we do recommend using
+version 6.
+
+## MSRV
+The Minimum Supported Rust Version is 1.70.0
+
 License: MIT OR Apache-2.0
