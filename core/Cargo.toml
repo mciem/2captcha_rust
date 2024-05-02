@@ -1,6 +1,6 @@
 [package]
 name = "captcha_oxide_core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Dependencies for captcha_oxide and captcha_oxide_macros"
