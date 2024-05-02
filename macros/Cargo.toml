@@ -9,4 +9,4 @@ description = "Procedural macros for captcha_oxide"
 proc-macro = true
 
 [dependencies]
-captcha_oxide_core = { version = "0.1.0", path = "../core" }
+captcha_oxide_core = { version = "0.1.1", path = "../core" }
