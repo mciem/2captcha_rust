@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 use crate::{
-    captcha::{Captcha, Solution},
+    captcha::{solution::Solution, Captcha},
     two_captcha::{create_task, get_balance, get_task_result, report},
 };
 

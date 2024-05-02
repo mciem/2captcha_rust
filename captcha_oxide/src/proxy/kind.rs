@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Kind {
     Http,

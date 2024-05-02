@@ -1,5 +1,6 @@
 #![allow(clippy::module_name_repetitions)]
 
+#[cfg(feature = "callback")]
 use url::Url;
 
 use crate::{language_pool::LanguagePool, CaptchaSolver};
@@ -10,6 +11,8 @@ pub struct ApiKey(Box<str>);
 pub struct CaptchaSolverBuilder<T> {
     api_key: T,
     language_pool: LanguagePool,
+
+    #[cfg(feature = "callback")]
     callback_url: Option<Url>,
 }
 
@@ -19,6 +22,8 @@ impl CaptchaSolverBuilder<ApiKey> {
         CaptchaSolver {
             api_key: self.api_key.0,
             language_pool: self.language_pool,
+
+            #[cfg(feature = "callback")]
             callback_url: self.callback_url,
         }
     }
@@ -30,6 +35,8 @@ impl CaptchaSolverBuilder<MissingApiKey> {
         Self {
             api_key: MissingApiKey,
             language_pool: LanguagePool::En,
+
+            #[cfg(feature = "callback")]
             callback_url: None,
         }
     }
@@ -42,6 +49,8 @@ impl CaptchaSolverBuilder<MissingApiKey> {
         CaptchaSolverBuilder {
             api_key: ApiKey(api_key.into()),
             language_pool: self.language_pool,
+
+            #[cfg(feature = "callback")]
             callback_url: self.callback_url,
         }
     }
@@ -54,12 +63,14 @@ impl<T> CaptchaSolverBuilder<T> {
         self
     }
 
+    #[cfg(feature = "callback")]
     #[must_use = "A builder type must have its `build` method called to build the target type"]
     pub fn callback_url(mut self, callback_url: Url) -> Self {
         self.callback_url = Some(callback_url);
         self
     }
 
+    #[cfg(feature = "callback")]
     #[must_use = "A builder type must have its `build` method called to build the target type"]
     pub fn remove_callback_url(mut self) -> Self {
         self.callback_url = None;

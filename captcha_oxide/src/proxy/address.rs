@@ -1,4 +1,4 @@
-use std::{borrow::Cow, net::IpAddr};
+use std::net::IpAddr;
 
 use serde::Serialize;
 
@@ -6,5 +6,5 @@ use serde::Serialize;
 #[serde(untagged)]
 pub enum Address<'a> {
     IpAddress(IpAddr),
-    HostName(Cow<'a, str>),
+    HostName(&'a str),
 }

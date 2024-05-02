@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use serde::{Serialize, Serializer};
 
 mod address;
@@ -20,10 +18,10 @@ pub struct Proxy<'a> {
     pub port: u16,
 
     #[serde(rename = "proxyLogin", skip_serializing_if = "Option::is_none")]
-    pub login: Option<Cow<'a, str>>,
+    pub login: Option<&'a str>,
 
     #[serde(rename = "proxyPassword", skip_serializing_if = "Option::is_none")]
-    pub password: Option<Cow<'a, str>>,
+    pub password: Option<&'a str>,
 }
 
 /// The 2captcha API expects the proxy's port to be a string, but knowing it should
@@ -48,8 +46,8 @@ mod test {
             kind: Kind::Http,
             address: Address::IpAddress(IpAddr::V4(Ipv4Addr::from([1, 2, 3, 4]))),
             port: 8080,
-            login: Some("user23".into()),
-            password: Some("p4$$w0rd".into()),
+            login: Some("user23"),
+            password: Some("p4$$w0rd"),
         };
 
         let expected = r#"{"proxyType":"http","proxyAddress":"1.2.3.4","proxyPort":"8080","proxyLogin":"user23","proxyPassword":"p4$$w0rd"}"#;

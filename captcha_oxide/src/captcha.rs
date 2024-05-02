@@ -2,11 +2,9 @@ use std::{fmt::Debug, time::Duration};
 
 use serde::{Deserialize, Serialize};
 
-mod solution;
+pub mod solution;
 pub mod types;
 pub use captcha_oxide_macros::captcha;
-
-pub use solution::{status::Status, Solution};
 
 pub trait Captcha: Serialize + Send + Sync {
     type Solution: for<'de> Deserialize<'de> + Debug + Send + Sync + PartialEq + Eq;
@@ -19,3 +17,6 @@ pub trait Captcha: Serialize + Send + Sync {
         Self::Builder::default()
     }
 }
+
+#[derive(Serialize, PartialEq, Eq, Debug)]
+pub struct Empty;

@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "callback")]
 use url::Url;
 
 use crate::{captcha::Captcha, language_pool::LanguagePool};
@@ -16,6 +18,7 @@ where
     pub soft_id: u16,
     pub language_pool: LanguagePool,
 
+    #[cfg(feature = "callback")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callback_url: Option<&'a Url>,
 }
@@ -56,6 +59,8 @@ mod test {
             task: &task,
             soft_id: 4143,
             language_pool: LanguagePool::En,
+
+            #[cfg(feature = "callback")]
             callback_url: None,
         };
 

@@ -5,7 +5,10 @@ use serde::Deserialize;
 
 use super::Captcha;
 
-pub mod status;
+pub enum Status {
+    Correct,
+    Incorrect,
+}
 
 #[derive(Deserialize, PartialEq, Eq, Debug)]
 #[serde(rename_all = "camelCase")]

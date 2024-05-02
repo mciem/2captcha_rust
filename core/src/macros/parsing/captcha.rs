@@ -12,9 +12,10 @@ use crate::{
 pub struct ProxyTask {
     pub name_with_proxy: String,
     pub name_without_proxy: String,
+    pub no_serde: bool,
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct Captcha {
     pub crate_rename: Option<Path>,
     pub serde_rename: Option<Path>,
@@ -100,6 +101,9 @@ parse_attrs! {
             }
 
             output.name_without_proxy = value;
-        }
+        },
+        "no_serde": output.no_serde => {
+            output.no_serde = true;
+        },
     }
 }

@@ -6,10 +6,7 @@ use syn::{
     parse_quote, FieldsNamed, GenericArgument, GenericParam, Generics, Ident, ItemStruct, Type,
 };
 
-use crate::{
-    ext::{generic_param::GenericParamExt, ident::IdentExt},
-    macros::parsing::captcha::Captcha,
-};
+use crate::{ext::generic_param::GenericParamExt, macros::parsing::captcha::Captcha};
 
 use self::{classified_fields::ClassifiedFields, type_state::TypeState};
 
@@ -163,6 +160,9 @@ impl<'a> Builder<'a> {
                     .filter(|&x| x != field_ident)
                     .map(|x| quote!(#x: self.#x));
 
+                let docs = field.attrs.iter()
+                    .filter(|attr| attr.path().is_ident("doc"));
+
                 let struct_ident = &provided_struct.ident;
                 let (_, struct_generics, _) = provided_struct.generics.split_for_impl();
                 let generic_args = generics
@@ -186,13 +186,10 @@ impl<'a> Builder<'a> {
 
                 let ty = &field.ty;
 
-                let generic_ident = field_ident.to_pascal_case();
-
                 quote! {
-                    pub fn #field_ident<#generic_ident>(
-                        self,
-                        #field_ident: #generic_ident
-                    ) -> #ident #generic_args where #generic_ident: Into<#ty>{
+                    #[must_use]
+                    #(#docs)*
+                    pub fn #field_ident(self, #field_ident: impl Into<#ty>) -> #ident #generic_args {
                         #ident {
                             #field_ident: #struct_ident(#field_ident.into()),
                             #self_fields
@@ -221,7 +218,10 @@ impl<'a> Builder<'a> {
             let ident = field.ident.as_ref()?;
             let remove_ident = format_ident!("remove_{ident}");
 
-            let generic_ident = ident.to_pascal_case();
+            let docs = field
+                .attrs
+                .iter()
+                .filter(|attr| attr.path().is_ident("doc"));
 
             let Type::Path(ref ty_path) = field.ty else {
                 return None;
@@ -235,10 +235,8 @@ impl<'a> Builder<'a> {
 
             Some(quote! {
                 #[must_use]
-                pub fn #ident<#generic_ident>(
-                    mut self,
-                    #ident: #generic_ident
-                ) -> Self where #generic_ident: Into<#ty> {
+                #(#docs)*
+                pub fn #ident(mut self, #ident: impl Into<#ty>) -> Self {
                     self.#ident = Some(#ident.into());
                     self
                 }
@@ -321,6 +319,7 @@ impl<'a> ToTokens for Builder<'a> {
                 use super::*;
 
                 mod type_state {
+                    use super::*;
                     #type_state
                 }
 

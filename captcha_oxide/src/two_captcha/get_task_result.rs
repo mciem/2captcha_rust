@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use serde::{Deserialize, Serialize};
 
-use crate::captcha::{Captcha, Solution};
+use crate::captcha::{solution::Solution, Captcha};
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -41,7 +41,7 @@ mod test {
     use serde_json::{from_str, to_string};
 
     use crate::{
-        captcha::{Captcha, Solution},
+        captcha::{solution::Solution, Captcha},
         two_captcha::get_task_result::{Request, Response},
     };
 

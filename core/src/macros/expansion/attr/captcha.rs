@@ -1,7 +1,10 @@
+use std::ops::Not;
+
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{
-    parse2, parse_quote, Error, Fields, FieldsNamed, ItemStruct, LitStr, MetaList, Path, Result,
+    parse2, parse_quote, punctuated::Punctuated, spanned::Spanned, Attribute, Error, Expr, ExprLit,
+    Fields, FieldsNamed, ItemStruct, Lit, Meta, MetaNameValue, Path, Result, Token,
 };
 
 use crate::macros::parsing::{
@@ -56,7 +59,6 @@ fn expand_captcha_attr(args: TokenStream, item: &TokenStream) -> Result<TokenStr
         .attrs
         .iter()
         .filter(|x| x.path().is_ident("serde"))
-        .filter_map(|x| x.meta.require_list().ok())
         .map(is_valid_serde_tag)
         .try_fold(false, |acc, cur| Ok::<_, Error>(acc || cur?))?;
 
@@ -70,8 +72,19 @@ fn expand_captcha_attr(args: TokenStream, item: &TokenStream) -> Result<TokenStr
             ));
         };
 
+        let serde_attrs = attr
+            .proxy
+            .as_ref()
+            .unwrap()
+            .no_serde
+            .not()
+            .then_some(quote!(
+                #[serde(flatten, skip_serializing_if = "Option::is_none")]
+            ));
         fields.named.push(parse_quote!(
-            #[serde(flatten)]
+            /// Your proxy server information. If you use this field, give it an
+            /// instance of [`crate::proxy::Proxy`]
+            #serde_attrs
             proxy: Option<ProxyTask<#lifetime>>
         ));
     }
@@ -158,29 +171,52 @@ fn generate_proxy_mod(
                     #[serde(rename = #without_proxy)]
                     ProxyLess,
                 }
+
+                impl<'a> From<#crate_rename::proxy::Proxy<'a>> for ProxyTask<'a> {
+                    fn from(value: #crate_rename::proxy::Proxy<'a>) -> Self {
+                        Self::WithProxy(value)
+                    }
+                }
             }
         )
     })
 }
 
-fn is_valid_serde_tag(list: &MetaList) -> Result<bool> {
+#[allow(clippy::unnecessary_wraps)]
+fn is_valid_serde_tag(attr: &Attribute) -> Result<bool> {
+    use Meta::NameValue as MNV;
+    use MetaNameValue as M;
+
     let mut has_tag = false;
 
-    list.parse_nested_meta(|meta| {
-        if !meta.path.is_ident("tag") {
-            return Ok(());
+    let nested = attr.parse_args_with(Punctuated::<Meta, Token![,]>::parse_terminated)?;
+
+    for meta in nested {
+        match meta {
+            MNV(M {
+                ref path,
+                ref value,
+                ..
+            }) if path.is_ident("tag") => {
+                let Expr::Lit(ExprLit {
+                    lit: Lit::Str(literal),
+                    ..
+                }) = value
+                else {
+                    return Err(Error::new(meta.span(), "Expected string literal"));
+                };
+
+                has_tag = true;
+                literal.value().eq("type").then_some(()).ok_or_else(|| {
+                    Error::new(
+                        literal.span(),
+                        r#"`#[serde(tag = "..")]` must have a value of "type""#,
+                    )
+                })?;
+            }
+            _ => continue,
         }
-
-        has_tag = true;
-
-        let litstr: LitStr = meta.value()?.parse()?;
-        litstr.value().eq("type").then_some(()).ok_or_else(|| {
-            Error::new(
-                litstr.span(),
-                r#"`#[serde(tag = "..")]` must have a value of "type""#,
-            )
-        })
-    })?;
+    }
 
     Ok(has_tag)
 }

@@ -6,7 +6,10 @@ use tokio::time::sleep;
 use url::Url;
 
 use crate::{
-    captcha::{Captcha, Solution, Status},
+    captcha::{
+        solution::{Solution, Status},
+        Captcha,
+    },
     language_pool::LanguagePool,
     two_captcha::{create_task, get_balance, get_task_result, report},
     Result, SOFT_ID,
@@ -34,6 +37,8 @@ lazy_static! {
 pub struct CaptchaSolver {
     api_key: Box<str>,
     language_pool: LanguagePool,
+
+    #[cfg(feature = "callback")]
     callback_url: Option<Url>,
 }
 
@@ -47,17 +52,37 @@ impl CaptchaSolver {
         Self {
             api_key: api_key.into(),
             language_pool: LanguagePool::En,
+
+            #[cfg(feature = "callback")]
             callback_url: None,
         }
     }
 
-    /// Returns a new instance of [`CaptchaSolverBuilder`], which allows you to configure
+    /// Returns a new instance of `CaptchaSolverBuilder`, which allows you to configure
     /// your [`CaptchaSolver`] and guarantees an API key is provided
     #[must_use]
     pub const fn builder() -> CaptchaSolverBuilder<MissingApiKey> {
         CaptchaSolverBuilder::new()
     }
 
+    #[cfg(not(feature = "callback"))]
+    /// Sends a request to the 2captcha API to solve the given puzzle
+    ///
+    /// # Errors
+    /// This function can error if the HTTP request is not sent successfully,
+    /// if the response cannot be parsed or if the 2captcha API returns an error
+    pub async fn solve<'a, T>(&self, task: &T) -> Result<Solution<'a, T>>
+    where
+        T: Captcha,
+    {
+        let task_id = self.create_task(task).await?;
+
+        sleep(task.get_timeout()).await;
+
+        self.get_task_result(task_id).await
+    }
+
+    #[cfg(feature = "callback")]
     /// Sends a request to the 2captcha API to solve the given puzzle
     ///
     /// # Errors
@@ -67,14 +92,30 @@ impl CaptchaSolver {
     /// # Option
     /// This function will only ever return `Ok(None)` if the `CaptchaSolver::callback_url`
     /// field is set. Otherwise, it is safe to `unwrap` the [`Option`] within the [`Result`]
-    pub async fn solve<'a, T>(&self, task: T) -> Result<Option<Solution<'a, T>>>
+    pub async fn solve<'a, T>(&self, task: &T) -> Result<Option<Solution<'a, T>>>
+    where
+        T: Captcha,
+    {
+        let task_id = self.create_task(task).await?;
+
+        if self.callback_url.is_some() {
+            return Ok(None);
+        }
+
+        sleep(task.get_timeout()).await;
+
+        self.get_task_result(task_id).await.map(Some)
+    }
+
+    async fn create_task<T>(&self, task: &T) -> Result<u64>
     where
         T: Captcha,
     {
         let request = create_task::Request {
             client_key: &self.api_key,
-            task: &task,
+            task,
             soft_id: SOFT_ID,
+            #[cfg(feature = "callback")]
             callback_url: self.callback_url.as_ref(),
             language_pool: self.language_pool,
         };
@@ -87,14 +128,13 @@ impl CaptchaSolver {
             .json::<create_task::Response>()
             .await?;
 
-        let task_id = error::Result::<_>::from(response)?;
+        Ok(error::Result::from(response)?)
+    }
 
-        if self.callback_url.is_some() {
-            return Ok(None);
-        }
-
-        sleep(task.get_timeout()).await;
-
+    async fn get_task_result<'a, T>(&self, task_id: u64) -> Result<Solution<'a, T>>
+    where
+        T: Captcha,
+    {
         let request = get_task_result::Request {
             client_key: &self.api_key,
             task_id,
@@ -113,7 +153,7 @@ impl CaptchaSolver {
 
             if let Some(mut captcha_solution) = captcha_solution {
                 captcha_solution.task_id = task_id;
-                return Ok(Some(captcha_solution));
+                return Ok(captcha_solution);
             }
 
             sleep(Duration::from_secs(5)).await;
