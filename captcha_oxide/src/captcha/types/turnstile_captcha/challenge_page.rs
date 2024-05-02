@@ -24,14 +24,14 @@ use crate::captcha::captcha;
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "super::solution::TurnstileCaptchaSolution<'a>",
     proxy(with_proxy = "TurnstileTask", without_proxy = "TurnstileTaskProxyless",)
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ChallengePageCaptcha<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

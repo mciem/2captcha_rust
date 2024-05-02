@@ -18,9 +18,9 @@ use crate::captcha::captcha;
 ///     .angle(60_u16)
 ///     .build();
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase", tag = "type", rename = "RotateTask")]
 #[captcha(crate = "crate", timeout = 5, solution = "RotateCaptchaSolution")]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", tag = "type", rename = "RotateTask")]
 pub struct RotateCaptcha<'a> {
     /// Image encoded into Base64 format. Data-URI format
     /// (containing `data:content/type` prefix) is also supported

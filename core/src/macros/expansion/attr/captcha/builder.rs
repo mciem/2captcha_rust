@@ -4,6 +4,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use syn::{
     parse_quote, FieldsNamed, GenericArgument, GenericParam, Generics, Ident, ItemStruct, Type,
+    TypePath,
 };
 
 use crate::{ext::generic_param::GenericParamExt, macros::parsing::captcha::Captcha};
@@ -88,7 +89,14 @@ impl<'a> Builder<'a> {
 
         for field in &self.classified_fields.optional {
             let ident = field.ident.as_ref().unwrap();
-            quote! { #ident: None, }.to_tokens(&mut tokens);
+
+            if ident == "proxy"
+                && matches!(field.ty, Type::Path(TypePath { ref path, .. }) if path.segments.last().is_some_and(|x| x.ident == "ProxyTask"))
+            {
+                quote! { proxy: ProxyTask::ProxyLess, }.to_tokens(&mut tokens);
+            } else {
+                quote! { #ident: None, }.to_tokens(&mut tokens);
+            }
         }
 
         tokens
@@ -233,20 +241,43 @@ impl<'a> Builder<'a> {
 
             let ty = args.first()?;
 
-            Some(quote! {
-                #[must_use]
-                #(#docs)*
-                pub fn #ident(mut self, #ident: impl Into<#ty>) -> Self {
-                    self.#ident = Some(#ident.into());
-                    self
-                }
+            if ident == "proxy"
+                && ty_path
+                    .path
+                    .segments
+                    .last()
+                    .is_some_and(|x| x.ident == "ProxyTask")
+            {
+                Some(quote! {
+                    #[must_use]
+                    #(#docs)*
+                    pub fn #ident(mut self, #ident: impl Into<#ty_path>) -> Self {
+                        self.#ident = #ident.into();
+                        self
+                    }
 
-                #[must_use]
-                pub fn #remove_ident(mut self) -> Self {
-                    self.#ident = None;
-                    self
-                }
-            })
+                    #[must_use]
+                    pub fn #remove_ident(mut self) -> Self {
+                        self.#ident = ProxyTask::ProxyLess;
+                        self
+                    }
+                })
+            } else {
+                Some(quote! {
+                    #[must_use]
+                    #(#docs)*
+                    pub fn #ident(mut self, #ident: impl Into<#ty>) -> Self {
+                        self.#ident = Some(#ident.into());
+                        self
+                    }
+
+                    #[must_use]
+                    pub fn #remove_ident(mut self) -> Self {
+                        self.#ident = None;
+                        self
+                    }
+                })
+            }
         });
 
         quote! {

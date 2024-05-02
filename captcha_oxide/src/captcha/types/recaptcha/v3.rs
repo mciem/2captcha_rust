@@ -21,12 +21,12 @@ use crate::captcha::captcha;
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "super::solution::RecaptchaSolution<'a>"
 )]
+#[derive(Debug, Serialize)]
 #[serde(
     rename_all = "camelCase",
     tag = "type",

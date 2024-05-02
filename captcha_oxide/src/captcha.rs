@@ -6,7 +6,7 @@ pub mod solution;
 pub mod types;
 pub use captcha_oxide_macros::captcha;
 
-pub trait Captcha: Serialize + Send + Sync {
+pub trait Captcha: Serialize + Send + Sync + Debug {
     type Solution: for<'de> Deserialize<'de> + Debug + Send + Sync + PartialEq + Eq;
     type Builder: Default;
 

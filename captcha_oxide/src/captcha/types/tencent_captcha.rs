@@ -4,14 +4,14 @@ use crate::captcha::captcha;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "TencentCaptchaSolution<'a>",
     proxy(with_proxy = "TencentTask", without_proxy = "TencentTaskProxyless",)
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TencentCaptcha<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

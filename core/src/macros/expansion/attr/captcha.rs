@@ -79,13 +79,13 @@ fn expand_captcha_attr(args: TokenStream, item: &TokenStream) -> Result<TokenStr
             .no_serde
             .not()
             .then_some(quote!(
-                #[serde(flatten, skip_serializing_if = "Option::is_none")]
+                #[serde(flatten)]
             ));
         fields.named.push(parse_quote!(
             /// Your proxy server information. If you use this field, give it an
             /// instance of [`crate::proxy::Proxy`]
             #serde_attrs
-            proxy: Option<ProxyTask<#lifetime>>
+            proxy: ProxyTask<#lifetime>
         ));
     }
 
@@ -161,7 +161,7 @@ fn generate_proxy_mod(
 
             #[doc(hidden)]
             mod proxy {
-                #[derive(#serde_rename::Serialize)]
+                #[derive(Debug, #serde_rename::Serialize)]
                 #[serde(tag = "type")]
                 #[doc(hidden)]
                 pub enum ProxyTask<'a> {

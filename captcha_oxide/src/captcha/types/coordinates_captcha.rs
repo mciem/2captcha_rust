@@ -25,9 +25,9 @@ use crate::captcha::captcha;
 ///     .comment("Click the green apple")
 ///     .build();
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase", tag = "type", rename = "CoordinatesTask")]
 #[captcha(crate = "crate", timeout = 5, solution = "CoordinatesCaptchaSolution")]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", tag = "type", rename = "CoordinatesTask")]
 pub struct CoordinatesCaptcha<'a> {
     /// Image encoded into Base64 format. Data-URI format
     /// (containing `data:content/type` prefix) is also supported

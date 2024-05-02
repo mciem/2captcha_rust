@@ -28,7 +28,7 @@ use builder::{
 ///     .columns(3)
 ///     .build();
 /// ```
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", tag = "type", rename = "GridTask")]
 pub struct GridCaptcha<'a> {
     /// Image encoded into Base64 format. Data-URI format

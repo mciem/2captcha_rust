@@ -25,7 +25,7 @@ mod builder;
 ///     .comment("Draw around an apple")
 ///     .build();
 /// ```
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", tag = "type", rename = "DrawAroundTask")]
 pub struct DrawAroundCaptcha<'a> {
     /// Image encoded into Base64 format. Data-URI format

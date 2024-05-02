@@ -44,13 +44,13 @@ use crate::{captcha::captcha, proxy::Proxy};
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase", tag = "type", rename = "DataDomeSliderTask")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "DataDomeCaptchaSolution<'a>"
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", tag = "type", rename = "DataDomeSliderTask")]
 pub struct DataDomeCaptcha<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

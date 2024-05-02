@@ -20,8 +20,6 @@ use crate::{captcha::captcha, cookie::Cookies};
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
@@ -31,6 +29,8 @@ use crate::{captcha::captcha, cookie::Cookies};
         without_proxy = "RecaptchaV2TaskProxyless",
     )
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecaptchaV2<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -72,4 +72,30 @@ pub struct RecaptchaV2<'a> {
     /// Default value: `google.com`
     #[serde(skip_serializing_if = "Option::is_none")]
     api_domain: Option<&'a str>,
+}
+
+#[cfg(test)]
+mod test {
+    use dotenv::dotenv;
+    use std::env;
+    use url::Url;
+
+    use crate::{captcha::types::recaptcha::v2::RecaptchaV2, Captcha, CaptchaSolver, Error};
+
+    #[tokio::test]
+    async fn recaptcha_v2() -> Result<(), Error> {
+        dotenv().unwrap();
+
+        let data = RecaptchaV2::builder()
+            .website_url(Url::parse("https://patrickhlauke.github.io/recaptcha/")?)
+            .website_key("6Ld2sf4SAAAAAKSgzs0Q13IZhY02Pyo31S2jgOB5")
+            .build();
+
+        let solver = CaptchaSolver::new(env::var("API_KEY").unwrap());
+
+        let solution = solver.solve(&data).await?.solution.g_recaptcha_response;
+
+        assert!(!solution.is_empty());
+        Ok(())
+    }
 }

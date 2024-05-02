@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use serde::Serialize;
 use url::Url;
 
@@ -28,8 +30,6 @@ use crate::{
 /// use of the default type provided to the generic argument, so you don't
 /// need to create a serializable unit struct if you don't plan to use the
 /// `enterprise_payload` field
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
@@ -39,9 +39,11 @@ use crate::{
         without_proxy = "RecaptchaV2EnterpriseTaskProxyless",
     )
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RecaptchaV2Enterprise<'a, T = Empty>
 where
-    T: serde::Serialize + Send + Sync,
+    T: Serialize + Debug + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

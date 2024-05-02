@@ -21,14 +21,14 @@ use crate::captcha::captcha;
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "LeminCaptchaSolution<'a>",
     proxy(with_proxy = "LeminTask", without_proxy = "LeminTaskProxyless",)
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LeminCaptcha<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -44,7 +44,7 @@ pub struct LeminCaptcha<'a> {
 
     /// API domain used to load the captcha scripts. Default: `https://api.leminnow.com/`
     #[serde(skip_serializing_if = "Option::is_none")]
-    lemin_api_server_subdomain: Option<Url>,
+    lemin_api_server_subdomain: Option<&'a str>,
 
     /// User-Agent your browser will be used to load the captcha.
     /// Use only modern browsers' User-Agents
@@ -53,8 +53,37 @@ pub struct LeminCaptcha<'a> {
 }
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct LeminCaptchaSolution<'a> {
     pub answer: Cow<'a, str>,
 
     pub challenge_id: Cow<'a, str>,
+}
+
+#[cfg(test)]
+mod test {
+    use std::env;
+
+    use url::Url;
+
+    use crate::{captcha::types::lemin_captcha::LeminCaptcha, Captcha, CaptchaSolver, Error};
+
+    #[tokio::test]
+    async fn lemin_captcha() -> Result<(), Error> {
+        dotenv::dotenv().unwrap();
+        let solver = CaptchaSolver::new(env::var("API_KEY").unwrap());
+
+        let captcha = LeminCaptcha::builder()
+            .website_url(Url::parse("https://2captcha.com/demo/lemin")?)
+            .captcha_id("CROPPED_5a29582_ca114c2f3314482c84cd32fc7d2feb63")
+            .div_id("lemin-cropped-captcha")
+            .lemin_api_server_subdomain("api.leminnow.com")
+            .build();
+
+        let solution = solver.solve(&captcha).await?.solution;
+
+        assert_ne!(solution.answer, "");
+
+        Ok(())
+    }
 }

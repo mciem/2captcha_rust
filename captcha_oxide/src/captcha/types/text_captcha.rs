@@ -18,9 +18,9 @@ use serde::{Deserialize, Serialize};
 ///     .comment("What's 2 + 2?")
 ///     .build();
 /// ```
-#[derive(Serialize)]
-#[serde(tag = "type", rename = "TextCaptchaTask")]
 #[captcha(crate = "crate", timeout = 5, solution = "TextCaptchaSolution<'a>")]
+#[derive(Debug, Serialize)]
+#[serde(tag = "type", rename = "TextCaptchaTask")]
 pub struct TextCaptcha<'a> {
     comment: &'a str,
 }

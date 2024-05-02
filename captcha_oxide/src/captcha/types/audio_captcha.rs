@@ -19,9 +19,9 @@ use crate::captcha::captcha;
 ///     .language(Language::Portuguese)
 ///     .build();
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase", tag = "type", rename = "AudioTask")]
 #[captcha(crate = "crate", timeout = 5, solution = "AudioCaptchaSolution<'a>")]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase", tag = "type", rename = "AudioTask")]
 pub struct AudioCaptcha<'a> {
     /// Base64 encoded audio file in mp3 format
     body: &'a str,
@@ -39,6 +39,7 @@ pub struct AudioCaptcha<'a> {
 }
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct AudioCaptchaSolution<'a> {
     pub solution: Cow<'a, str>,
 }

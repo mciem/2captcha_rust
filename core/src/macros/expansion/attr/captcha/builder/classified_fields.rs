@@ -114,11 +114,21 @@ impl<'a> ClassifiedFields<'a> {
                     return false;
                 };
 
-                last_segment.ident == "Option"
-                    && matches!(
+                let ty_ident = &last_segment.ident;
+
+                if ty_ident == "Option" {
+                    return matches!(
                         last_segment.arguments,
                         PA(A { ref args, .. }) if args.len() == 1
-                    )
+                    );
+                }
+
+                let field_ident = field.ident.as_ref();
+                if field_ident.is_some_and(|x| x == "proxy") && ty_ident == "ProxyTask" {
+                    return true;
+                }
+
+                false
             }
             _ => false,
         }
@@ -139,13 +149,16 @@ impl<'a> ToTokens for ClassifiedFields<'a> {
 
         for (&field, ty) in self.required.iter().zip(&self.type_state_generics) {
             let mut field = field.clone();
+            field.attrs = vec![];
             field.ty = parse_quote!(#ty);
             field.to_tokens(tokens);
 
             comma.to_tokens(tokens);
         }
 
-        for field in &self.optional {
+        for &field in &self.optional {
+            let mut field = field.clone();
+            field.attrs = vec![];
             field.to_tokens(tokens);
 
             comma.to_tokens(tokens);

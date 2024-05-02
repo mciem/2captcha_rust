@@ -24,14 +24,14 @@ use url::Url;
 ///
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "AmazonCaptchaSolution<'a>",
     proxy(with_proxy = "AmazonTask", without_proxy = "AmazonTaskProxyless")
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AmazonCaptcha<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -58,6 +58,7 @@ pub struct AmazonCaptcha<'a> {
 }
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct AmazonCaptchaSolution<'a> {
     pub captcha_voucher: Cow<'a, str>,
     pub existing_token: Cow<'a, str>,
@@ -85,7 +86,7 @@ mod test {
 
         assert_eq!(
             json,
-            r#"{"websiteURL":"https://somewebsite.com/","websiteKey":"somekey","iv":"someiv","context":"somecontext"}"#,
+            r#"{"websiteURL":"https://somewebsite.com/","websiteKey":"somekey","iv":"someiv","context":"somecontext","type":"AmazonTaskProxyless"}"#,
         );
 
         Ok(())

@@ -23,14 +23,14 @@ use url::Url;
 ///     .build();
 /// # Ok::<_, captcha_oxide::Error>(())
 /// ```
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
     solution = "GeeTestV3Solution<'a>",
     proxy(with_proxy = "GeeTestTask", without_proxy = "GeeTestTaskProxyless",)
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GeeTestV3<'a> {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available

@@ -22,7 +22,7 @@ pub mod error;
 
 lazy_static! {
     static ref CLIENT: Client = Client::new();
-    static ref API_URL: Url = Url::parse("https://api.2captcha.com").unwrap();
+    static ref API_URL: Url = Url::parse("https://api.2captcha.com/").unwrap();
     static ref CREATE_TASK_URL: Url = API_URL.join("/createTask").unwrap();
     static ref GET_TASK_RESULT_URL: Url = API_URL.join("/getTaskResult").unwrap();
     static ref GET_BALANCE_URL: Url = API_URL.join("/getBalance").unwrap();

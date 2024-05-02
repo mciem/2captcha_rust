@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Serialize, Serializer};
 
+#[derive(Debug)]
 pub struct Cookie(Box<str>, Box<str>);
+
+#[derive(Debug)]
 pub struct Cookies(Box<[Cookie]>);
 
 impl Cookies {

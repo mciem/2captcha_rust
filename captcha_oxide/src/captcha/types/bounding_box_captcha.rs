@@ -26,7 +26,7 @@ mod builder;
 ///     .comment("Draw a box around the car")
 ///     .build();
 /// ```
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase", tag = "type", rename = "DrawAroundTask")]
 pub struct BoundingBoxCaptcha<'a> {
     /// Image encoded into Base64 format. Data-URI format
@@ -66,6 +66,7 @@ pub struct BoundingBox {
 }
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct BoundingBoxCaptchaSolution {
     pub bounding_boxes: Box<[Box<[BoundingBox]>]>,
 }

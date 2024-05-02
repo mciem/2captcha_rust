@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Debug};
 
 use serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer};
 use url::Url;
@@ -8,6 +8,7 @@ use crate::{
     proxy::Proxy,
 };
 
+#[derive(Debug)]
 #[captcha(
     crate = "crate",
     timeout = 20,
@@ -20,7 +21,7 @@ use crate::{
 )]
 pub struct GeeTestV4<'a, T = Empty>
 where
-    T: Serialize + Send + Sync,
+    T: Serialize + Debug + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -42,6 +43,7 @@ where
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InitParameters<'a, T> {
     captcha_id: &'a str,
 
@@ -61,7 +63,7 @@ pub struct GeeTestV4Solution<'a> {
 
 impl<'a, T> GeeTestV4<'a, T>
 where
-    T: Serialize + Send + Sync,
+    T: Serialize + Debug + Send + Sync,
 {
     fn field_count(&self) -> usize {
         /// Accounts for [`GeeTestV4::website_url`], [`GeeTestV4::init_parameters`]
@@ -71,7 +73,7 @@ where
 
         let optional_field_count = self.geetest_api_server_subdomain.map_or(0, |_| 1)
             + self.user_agent.map_or(0, |_| 1)
-            + self.proxy.as_ref().map_or(0, |x| match x {
+            + match self.proxy {
                 ProxyTask::WithProxy(ref p) => {
                     /// Accounts for [`Proxy::port`], [`Proxy::address`] and [`Proxy::kind`]
                     const PROXY_REQUIRED_FIELD_COUNT: usize = 3;
@@ -82,7 +84,7 @@ where
                     PROXY_REQUIRED_FIELD_COUNT + proxy_optional_field_count
                 }
                 ProxyTask::ProxyLess => 0,
-            });
+            };
 
         REQUIRED_FIELD_COUNT + optional_field_count
     }
@@ -92,7 +94,7 @@ where
 // the version field, which must always be equal to 4
 impl<'a, T> Serialize for GeeTestV4<'a, T>
 where
-    T: Serialize + Send + Sync,
+    T: Serialize + Debug + Send + Sync,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -101,8 +103,8 @@ where
         let mut state = serializer.serialize_struct("GeeTestV4", self.field_count())?;
 
         match self.proxy {
-            Some(ProxyTask::WithProxy(_)) => state.serialize_field("type", "GeeTestTask")?,
-            Some(ProxyTask::ProxyLess) | None => {
+            ProxyTask::WithProxy(_) => state.serialize_field("type", "GeeTestTask")?,
+            ProxyTask::ProxyLess => {
                 state.serialize_field("type", "GeeTestTaskProxyless")?;
             }
         }
@@ -123,13 +125,13 @@ where
 
         state.serialize_field("version", &4_u8)?;
         state.serialize_field("initParameters", &self.init_parameters)?;
-        if let Some(ProxyTask::WithProxy(Proxy {
+        if let ProxyTask::WithProxy(Proxy {
             port,
             kind,
             ref address,
             login,
             password,
-        })) = self.proxy
+        }) = self.proxy
         {
             state.serialize_field("proxyType", &kind)?;
             state.serialize_field("proxyAddress", address)?;

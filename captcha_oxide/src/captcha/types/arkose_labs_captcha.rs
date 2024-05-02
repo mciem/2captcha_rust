@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt::Debug};
 
 use crate::captcha::{captcha, Empty};
 use serde::{Deserialize, Serialize, Serializer};
@@ -27,8 +27,6 @@ use url::Url;
 /// default type provided to the generic argument, so you don't need to
 /// create a serializable unit struct if you don't plan to use the
 /// `data` field
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
 #[captcha(
     crate = "crate",
     timeout = 20,
@@ -38,9 +36,11 @@ use url::Url;
         without_proxy = "FunCaptchaTaskProxyless"
     )
 )]
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ArkoseLabsCaptcha<'a, T = Empty>
 where
-    T: Serialize + Send + Sync,
+    T: Serialize + Debug + Send + Sync,
 {
     /// The full URL of target web page where the captcha is loaded.
     /// We do not open the page, so it is not a problem if it is available
@@ -73,6 +73,7 @@ where
 }
 
 #[derive(Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct ArkoseLabsCaptchaSolution<'a> {
     pub token: Cow<'a, str>,
 }
