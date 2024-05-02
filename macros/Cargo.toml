@@ -2,6 +2,8 @@
 name = "captcha_oxide_macros"
 version = "0.1.0"
 edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Procedural macros for captcha_oxide"
 
 [lib]
 proc-macro = true
