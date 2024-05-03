@@ -19,7 +19,7 @@ where
 {
     /// The task id is not returned by 2captcha, instead it
     /// is manually added to the struct in order to allow the
-    /// use of the [crate::CaptchaSolver::report] method without
+    /// use of the [`crate::CaptchaSolver::report`] method without
     /// allowing the user to see (or more importantly, change)
     /// the task id
     #[serde(default = "Default::default")]

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::{Display, Write}};
 
 use serde::{Serialize, Serializer};
 
@@ -15,22 +15,20 @@ impl Cookies {
     }
 }
 
-impl ToString for Cookies {
-    fn to_string(&self) -> String {
-        let mut output = String::new();
-
+impl Display for Cookies {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut iter = self.0.iter().peekable();
         loop {
             let Some(Cookie(key, val)) = iter.next() else {
-                return output;
+                return Ok(())
             };
 
-            output.push_str(key);
-            output.push('=');
-            output.push_str(val);
+            f.write_str(key)?;
+            f.write_char('=')?;
+            f.write_str(val)?;
 
             if iter.peek().is_some() {
-                output.push(';');
+                f.write_char(';')?;
             }
         }
     }
