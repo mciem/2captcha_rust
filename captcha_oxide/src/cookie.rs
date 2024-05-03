@@ -1,4 +1,7 @@
-use std::{collections::HashMap, fmt::{Display, Write}};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Write},
+};
 
 use serde::{Serialize, Serializer};
 
@@ -20,7 +23,7 @@ impl Display for Cookies {
         let mut iter = self.0.iter().peekable();
         loop {
             let Some(Cookie(key, val)) = iter.next() else {
-                return Ok(())
+                return Ok(());
             };
 
             f.write_str(key)?;
