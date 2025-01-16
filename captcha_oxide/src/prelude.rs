@@ -11,7 +11,7 @@ pub enum Error {
     Serialize(#[from] serde_json::Error),
 
     #[error(transparent)]
-    Http(#[from] reqwest::Error),
+    Http(#[from] rquest::Error),
 
     #[error(transparent)]
     TwoCaptchaError(#[from] crate::captcha_solver::error::Error),

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use lazy_static::lazy_static;
-use reqwest::Client;
+use rquest::Client;
 use tokio::time::sleep;
 use url::Url;
 
